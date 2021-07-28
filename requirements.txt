@@ -1,0 +1,7 @@
+scipy
+numpy
+paranoid-scientist
+matplotlib
+pathos
+pyddm
+pandas
