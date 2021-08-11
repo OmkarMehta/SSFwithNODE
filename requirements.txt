@@ -5,3 +5,4 @@ matplotlib
 pathos
 pyddm
 pandas
+plotly
