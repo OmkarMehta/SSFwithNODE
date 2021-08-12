@@ -6,3 +6,6 @@ pathos
 pyddm
 pandas
 plotly
+ipykernel
+jupyter
+seaborn
