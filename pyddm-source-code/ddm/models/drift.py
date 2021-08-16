@@ -7,11 +7,11 @@
 __all__ = ["Drift", "DriftConstant", "DriftLinear"]
 
 import numpy as np
-from ..tridiag import TriDiagMatrix
+from ..tridiag import TriDiagMatrix  # it helps us understand diagonal, upper-diagonal, lowee-diagonal matrices
 
-from .base import Dependence
-from paranoid import *
-from .paranoid_types import Conditions
+from .base import Dependence  # This is the mother of all subclasses like drift, ic, etc.
+from paranoid import *  # it checks if one's code is scientifically correct before running the code
+from .paranoid_types import Conditions  # helps us check the conditions using paranoid
 
 @paranoidclass
 class Drift(Dependence):
