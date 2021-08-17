@@ -450,12 +450,12 @@ class OverlayNonDecisionGamma(Overlay):
         err = solution.err
         dt = solution.model.dt
         # Create the weights for different timepoints
-        times = np.asarray(list(range(-len(corr), len(corr))))*dt
-        weights = scipy.stats.gamma(a=self.shape, scale=self.scale, loc=self.nondectime).pdf(times)
+        times = np.asarray(list(range(-len(corr), len(corr))))*dt  # https://numpy.org/doc/stable/reference/generated/numpy.asarray.html
+        weights = scipy.stats.gamma(a=self.shape, scale=self.scale, loc=self.nondectime).pdf(times)  # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html
         if np.sum(weights) > 0:
             weights /= np.sum(weights) # Ensure it integrates to 1
         # Divide by 1+1e-14 to avoid numerical errors after the convolution, which are on the order of 10^-16
-        newcorr = np.convolve(corr, weights, mode="full")[len(corr):(2*len(corr))]/(1+1e-14)
+        newcorr = np.convolve(corr, weights, mode="full")[len(corr):(2*len(corr))]/(1+1e-14)  # https://numpy.org/doc/stable/reference/generated/numpy.convolve.html
         newerr = np.convolve(err, weights, mode="full")[len(corr):(2*len(corr))]/(1+1e-14)
         return Solution(newcorr, newerr, solution.model,
                         solution.conditions, solution.undec, solution.evolution)
