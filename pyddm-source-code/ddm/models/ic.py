@@ -173,7 +173,7 @@ class ICGaussian(InitialCondition):
     @ensures('np.isclose(np.sum(return), 1)')
     @ensures('np.all(np.isclose(return[::-1], return))') # Symmetric
     def get_IC(self, x, dx, *args, **kwargs):
-        pdf = scipy.stats.norm(0, self.stdev).pdf(x)
+        pdf = scipy.stats.norm(0, self.stdev).pdf(x)  # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html
         return pdf/np.sum(pdf)
 
 
