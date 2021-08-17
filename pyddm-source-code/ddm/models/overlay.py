@@ -7,7 +7,7 @@
 __all__ = ["Overlay", "OverlayNone", "OverlayChain", "OverlayUniformMixture", "OverlayPoissonMixture", "OverlayExponentialMixture", "OverlayNonDecision", "OverlayNonDecisionGamma", "OverlayNonDecisionUniform", "OverlaySimplePause", "OverlayBlurredPause"]
 
 import numpy as np
-from scipy.special import gamma as sp_gamma
+from scipy.special import gamma as sp_gamma  # https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.gamma.html
 import scipy.stats
 
 from paranoid import accepts, returns, requires, ensures, Self, paranoidclass, paranoidconfig, Range, Positive, Number, List, Positive0, NDArray, Unchecked
