@@ -397,6 +397,8 @@ class Sample(object):
     @ensures('len(return) == len(self.t_domain(dt=dt, T_dur=T_dur))')
     def pdf_corr(self, dt=.01, T_dur=2):
         """The correct component of the joint PDF."""
+        # https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
+        # https://stackoverflow.com/questions/9141732/how-does-numpy-histogram-work
         return np.histogram(self.corr, bins=int(T_dur/dt)+1, range=(0-dt/2, T_dur+dt/2))[0]/len(self)/dt # dt/2 terms are for continuity correction
 
     @accepts(Self, dt=Positive, T_dur=Positive)
