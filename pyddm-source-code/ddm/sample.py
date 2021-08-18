@@ -168,6 +168,7 @@ class Sample(object):
         columns.  This function does not yet work with undecided
         trials.
         """
+        # https://numpy.org/doc/stable/reference/generated/numpy.ndarray.astype.html
         c = data[:,1].astype(bool)
         nc = (1-data[:,1]).astype(bool)
         def pt(x): # Pythonic types
