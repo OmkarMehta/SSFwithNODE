@@ -118,6 +118,7 @@ class Sample(object):
         for k in self.conditions:
             if k not in other.conditions:
                 return False
+            # https://numpy.org/doc/stable/reference/generated/numpy.issubdtype.html
             if np.issubdtype(self.conditions[k][0].dtype, np.floating) and \
                np.issubdtype(self.conditions[k][0].dtype, np.floating):
                 compare_func = np.allclose
