@@ -388,6 +388,7 @@ class Sample(object):
     #@requires('T_dur/dt < 1e5') # Too large of a number
     def t_domain(dt=.01, T_dur=2):
         """The times that corresponds with pdf/cdf_corr/err parameters (their support)."""
+        # https://numpy.org/doc/stable/reference/generated/numpy.linspace.html
         return np.linspace(0, T_dur, int(T_dur/dt)+1)
 
     @accepts(Self, dt=Positive, T_dur=Positive)
