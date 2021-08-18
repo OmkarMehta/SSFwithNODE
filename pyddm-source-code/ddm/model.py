@@ -430,6 +430,7 @@ class Model(object):
         mt = self.get_model_type()
         # First check to make sure drift doesn't vary with time or
         # particle location
+        # https://www.geeksforgeeks.org/python-get-function-signature/
         driftfuncsig = inspect.signature(mt["Drift"].get_drift)
         if "t" in driftfuncsig.parameters or "x" in driftfuncsig.parameters:
             return False
