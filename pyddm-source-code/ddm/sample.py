@@ -296,6 +296,7 @@ class Sample(object):
         mask_undec = np.ones(self.undecided).astype(bool)
         for k,v in kwargs.items():
             if hasattr(v, '__call__'):
+                # https://numpy.org/doc/stable/reference/generated/numpy.logical_and.html
                 mask_corr = np.logical_and(mask_corr, [v(i) for i in self.conditions[k][0]])
                 mask_err = np.logical_and(mask_err, [v(i) for i in  self.conditions[k][1]])
                 mask_undec = np.asarray([], dtype=bool) if self.undecided == 0 else np.logical_and(mask_undec, [v(i) for i in self.conditions[k][2]])
