@@ -320,6 +320,8 @@ class Solution(object):
         combined_probs = list(shorter_pdf_corr*self.model.dt) + list(shorter_pdf_err*self.model.dt) + [self.prob_undecided()]
         if fsum(combined_probs) != 1:
             print("Warning, distribution sums to %f rather than 1" % fsum(combined_probs))
+        # https://www.sharpsightlabs.com/blog/numpy-random-choice/
+        # the below code randomly chooses k # of times in t_domain() for which we know the probability
         samp = np.random.choice(combined_domain, p=combined_probs, replace=True, size=k)
         undecided = np.sum(samp==-1)
         samp = samp[samp != -1] # Remove undecided trials
