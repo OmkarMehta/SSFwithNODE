@@ -79,6 +79,7 @@ class Solution(object):
             - `pdf_undec` - a size M numpy ndarray describing the final state of the simulation.  None if unavailable.
             - `pdf_evolution` - a size M-by-N numpy ndarray describing the state of the simulation at each time step. None if unavailable.
         """
+        # https://www.geeksforgeeks.org/copy-python-deep-copy-shallow-copy/
         self.model = copy.deepcopy(model) # TODO this could cause a memory leak if I forget it is there...
         self.corr = pdf_corr 
         self.err = pdf_err
