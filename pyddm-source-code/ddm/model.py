@@ -328,8 +328,10 @@ class Model(object):
         T = self.t_domain()
 
         # Choose a starting position from the IC
+        # https://numpy.org/doc/1.16/reference/generated/numpy.random.RandomState.html
         rng = np.random.RandomState(seed)
         ic = self.IC(conditions=conditions)
+        # https://numpy.org/doc/1.16/reference/generated/numpy.random.RandomState.choice.html#numpy.random.RandomState.choice
         x0 = rng.choice(self.x_domain(conditions=conditions), p=ic)
         pos = [x0]
 
@@ -342,6 +344,7 @@ class Model(object):
         for i in range(1, len(T)):
             # Stochastic Runge-Kutta order 4.  See "Introduction to
             # Stochastic Differential Equations" by Thomas C. Gard
+            # https://numpy.org/doc/1.16/reference/generated/numpy.random.RandomState.randn.html#numpy.random.RandomState.randn
             rn = rng.randn()
             dw = np.sqrt(h)*rn
             drift1 = fm(t=T[i-1], x=pos[i-1])
