@@ -6,7 +6,7 @@
 
 import copy
 import numpy as np
-from math import fsum
+from math import fsum  # https://www.geeksforgeeks.org/python-fsum-function/
 from paranoid.types import NDArray, Generic, Number, Self, Positive0, Range, Natural1, Natural0
 from paranoid.decorators import accepts, returns, requires, ensures, paranoidclass
 from .models.paranoid_types import Conditions
