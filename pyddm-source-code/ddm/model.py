@@ -486,6 +486,7 @@ class Model(object):
         Return a Solution object describing the joint PDF distribution of reaction times.
 
         """
+        # https://machinelearningmastery.com/analytical-vs-numerical-solutions-in-machine-learning/#:~:text=An%20analytical%20solution%20involves%20framing,solved%20well%20enough%20to%20stop.
         # TODO solves this using the dis module as described in the
         # comment for can_solve_cn
         self.check_conditions_satisfied(conditions)
