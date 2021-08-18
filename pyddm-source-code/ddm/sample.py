@@ -82,7 +82,7 @@ class Sample(object):
         self.err = sample_err
         self.undecided = undecided
         # Values should not change
-        self.corr.flags.writeable = False
+        self.corr.flags.writeable = False  # https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flags.html
         self.err.flags.writeable = False
         # Make sure the kwarg parameters/conditions are in the correct
         # format
