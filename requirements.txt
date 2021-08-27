@@ -9,3 +9,5 @@ plotly
 ipykernel
 jupyter
 seaborn
+quandl
+urllib3
