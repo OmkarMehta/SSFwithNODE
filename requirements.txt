@@ -11,3 +11,5 @@ jupyter
 seaborn
 quandl
 urllib3
+torchdyn
+sklearn
