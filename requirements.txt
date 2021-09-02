@@ -14,3 +14,4 @@ urllib3
 torchdyn
 sklearn
 tk
+yfinance
