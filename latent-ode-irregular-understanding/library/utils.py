@@ -192,11 +192,11 @@ def sample_standard_gaussian(mu, sigma):
 
 
 def split_train_test(data, train_fraq = 0.8):
-  	print(f"Using split_train_test()")
-	n_samples = data.size(0)
-	data_train = data[:int(n_samples * train_fraq)]
-	data_test = data[int(n_samples * train_fraq):]
-	return data_train, data_test
+    print(f"Using split_train_test()")
+    n_samples = data.size(0)
+    data_train = data[:int(n_samples * train_fraq)]
+    data_test = data[int(n_samples * train_fraq):]
+    return data_train, data_test
 
 def split_train_test_data_and_time(data, time_steps, train_fraq = 0.8):
 	n_samples = data.size(0)
@@ -327,31 +327,27 @@ def get_dict_template():
 
 
 def normalize_data(data):
-  	print(f"Using normalize_data()")
-  	print(f"data.shape is {data.shape}")
-  	print(f"reshaped = data.reshape(-1, data.size(-1))")
-	reshaped = data.reshape(-1, data.size(-1))
-  	print(f"reshaped.shape is {reshaped.shape}")
-
-	att_min = torch.min(reshaped, 0)[0]
-  	print(f"att_min = torch.min(reshaped, 0)[0]")
-  	print(f"att_min.shape is {att_min.shape}")
-	att_max = torch.max(reshaped, 0)[0]
-  	print(f"att_max = torch.max(reshaped, 0)[0]")
-  	print(f"att_max.shape is {att_max.shape}")
-	# we don't want to divide by zero
-	att_max[ att_max == 0.] = 1.
-
-	if (att_max != 0.).all():
-    	print(f"data_norm = (data - att_min) / att_max")
-		data_norm = (data - att_min) / att_max
-	else:
-		raise Exception("Zero!")
-
-	if torch.isnan(data_norm).any():
-		raise Exception("nans!")
-
-	return data_norm, att_min, att_max
+    print(f"Using normalize_data()")
+    print(f"data.shape is {data.shape}")
+    print(f"reshaped = data.reshape(-1, data.size(-1))")
+    reshaped = data.reshape(-1, data.size(-1))
+    print(f"reshaped.shape is {reshaped.shape}")
+    att_min = torch.min(reshaped, 0)[0]
+    print(f"att_min = torch.min(reshaped, 0)[0]")
+    print(f"att_min.shape is {att_min.shape}")
+    att_max = torch.max(reshaped, 0)[0]
+    print(f"att_max = torch.max(reshaped, 0)[0]")
+    print(f"att_max.shape is {att_max.shape}")
+    # we don't want to divide by zero
+    att_max[ att_max == 0.] = 1.
+    if (att_max != 0.).all():
+      print(f"data_norm = (data - att_min) / att_max")
+      data_norm = (data - att_min) / att_max
+    else:
+      raise Exception("Zero!")
+    if torch.isnan(data_norm).any():
+      raise Exception("nans!")
+    return data_norm, att_min, att_max
 
 
 def normalize_masked_data(data, mask, att_min, att_max):
@@ -385,78 +381,78 @@ def shift_outputs(outputs, first_datapoint = None):
 
 
 def split_data_extrap(data_dict, dataset = ""):
-  	print(f"Using split_data_extrap function")
-	device = get_device(data_dict["data"])
-  	print(f"device is {device}")
-	n_observed_tp = data_dict["data"].size(1) // 2
-  	print(f"If dataset is not hopper, n_observed_tp is {n_observed_tp} and n_observed_tp.shape is {n_observed_tp.shape}")
-	if dataset == "hopper":
-		n_observed_tp = data_dict["data"].size(1) // 3
-    	print(f"If dataset is hopper, n_observed_tp is {n_observed_tp} and n_observed_tp.shape is {n_observed_tp.shape}")
+    print(f"Using split_data_extrap function")
+    device = get_device(data_dict["data"])
+    print(f"device is {device}")
+    n_observed_tp = data_dict["data"].size(1) // 2
+    print(f"If dataset is not hopper, n_observed_tp is {n_observed_tp} and n_observed_tp.shape is {n_observed_tp.shape}")
+    if dataset == "hopper":
+        n_observed_tp = data_dict["data"].size(1) // 3
+        print(f"If dataset is hopper, n_observed_tp is {n_observed_tp} and n_observed_tp.shape is {n_observed_tp.shape}")
 
-  	print(f"Getting observed timepoints and timepoints to predict")
-	split_dict = {"observed_data": data_dict["data"][:,:n_observed_tp,:].clone(),
-				"observed_tp": data_dict["time_steps"][:n_observed_tp].clone(),
-				"data_to_predict": data_dict["data"][:,n_observed_tp:,:].clone(),
-				"tp_to_predict": data_dict["time_steps"][n_observed_tp:].clone()}
-  	print(f"split_dict has keys as {split_dict.keys()}")
+    print(f"Getting observed timepoints and timepoints to predict")
+    split_dict = {"observed_data": data_dict["data"][:,:n_observed_tp,:].clone(),
+        "observed_tp": data_dict["time_steps"][:n_observed_tp].clone(),
+        "data_to_predict": data_dict["data"][:,n_observed_tp:,:].clone(),
+        "tp_to_predict": data_dict["time_steps"][n_observed_tp:].clone()}
+    print(f"split_dict has keys as {split_dict.keys()}")
 
-	split_dict["observed_mask"] = None 
-	split_dict["mask_predicted_data"] = None 
-	split_dict["labels"] = None 
+    split_dict["observed_mask"] = None 
+    split_dict["mask_predicted_data"] = None 
+    split_dict["labels"] = None 
 
-	if ("mask" in data_dict) and (data_dict["mask"] is not None):
-		split_dict["observed_mask"] = data_dict["mask"][:, :n_observed_tp].clone()
-		split_dict["mask_predicted_data"] = data_dict["mask"][:, n_observed_tp:].clone()
+    if ("mask" in data_dict) and (data_dict["mask"] is not None):
+        split_dict["observed_mask"] = data_dict["mask"][:, :n_observed_tp].clone()
+        split_dict["mask_predicted_data"] = data_dict["mask"][:, n_observed_tp:].clone()
 
-	if ("labels" in data_dict) and (data_dict["labels"] is not None):
-		split_dict["labels"] = data_dict["labels"].clone()
+    if ("labels" in data_dict) and (data_dict["labels"] is not None):
+        split_dict["labels"] = data_dict["labels"].clone()
 
-	split_dict["mode"] = "extrap"
-  	print(f"split_dict['mode'] is {split_dict['mode']}")
-	return split_dict
+    split_dict["mode"] = "extrap"
+    print(f"split_dict['mode'] is {split_dict['mode']}")
+    return split_dict
 
 
 
 
 
 def split_data_interp(data_dict):
-  	print(f"Using split_data_interp function")
-	device = get_device(data_dict["data"])
-  	print(f"Getting observed timepoints and timepoints to predict")
-	split_dict = {"observed_data": data_dict["data"].clone(),
-				"observed_tp": data_dict["time_steps"].clone(),
-				"data_to_predict": data_dict["data"].clone(),
-				"tp_to_predict": data_dict["time_steps"].clone()}
-  	print(f"split_dict has keys as {split_dict.keys()}")
-	split_dict["observed_mask"] = None 
-	split_dict["mask_predicted_data"] = None 
-	split_dict["labels"] = None 
+    print(f"Using split_data_interp function")
+    device = get_device(data_dict["data"])
+    print(f"Getting observed timepoints and timepoints to predict")
+    split_dict = {"observed_data": data_dict["data"].clone(),
+        "observed_tp": data_dict["time_steps"].clone(),
+        "data_to_predict": data_dict["data"].clone(),
+        "tp_to_predict": data_dict["time_steps"].clone()}
+    print(f"split_dict has keys as {split_dict.keys()}")
+    split_dict["observed_mask"] = None 
+    split_dict["mask_predicted_data"] = None 
+    split_dict["labels"] = None 
 
-	if "mask" in data_dict and data_dict["mask"] is not None:
-		split_dict["observed_mask"] = data_dict["mask"].clone()
-		split_dict["mask_predicted_data"] = data_dict["mask"].clone()
+    if "mask" in data_dict and data_dict["mask"] is not None:
+        split_dict["observed_mask"] = data_dict["mask"].clone()
+        split_dict["mask_predicted_data"] = data_dict["mask"].clone()
 
-	if ("labels" in data_dict) and (data_dict["labels"] is not None):
-		split_dict["labels"] = data_dict["labels"].clone()
+    if ("labels" in data_dict) and (data_dict["labels"] is not None):
+        split_dict["labels"] = data_dict["labels"].clone()
 
-	split_dict["mode"] = "interp"
-  	print(f"split_dict['mode'] is {split_dict['mode']}")
-	return split_dict
+    split_dict["mode"] = "interp"
+    print(f"split_dict['mode'] is {split_dict['mode']}")
+    return split_dict
 
 
 
 def add_mask(data_dict):
-  	print(f"Using add_mask")
-	data = data_dict["observed_data"]
-	mask = data_dict["observed_mask"]
+    print(f"Using add_mask")
+    data = data_dict["observed_data"]
+    mask = data_dict["observed_mask"]
 
-	if mask is None:
-    	print(f"we will use torch.ones_like")
-		mask = torch.ones_like(data).to(get_device(data)) # https://pytorch.org/docs/stable/generated/torch.ones_like.html
+    if mask is None:
+        print(f"we will use torch.ones_like")
+        mask = torch.ones_like(data).to(get_device(data)) # https://pytorch.org/docs/stable/generated/torch.ones_like.html
 
-	data_dict["observed_mask"] = mask
-	return data_dict
+    data_dict["observed_mask"] = mask
+    return data_dict
 
 
 def subsample_observed_data(data_dict, n_tp_to_sample = None, n_points_to_cut = None):
@@ -498,37 +494,37 @@ def subsample_observed_data(data_dict, n_tp_to_sample = None, n_points_to_cut = 
 
 
 def split_and_subsample_batch(data_dict, args, data_type = "train"):
-  	print(f"Inside split_and_subsample_batch() function")
-	if data_type == "train":
-    	print(f"if data_type is train")
-		# Training set
-		if args.extrap:
-			processed_dict = split_data_extrap(data_dict, dataset = args.dataset)
-		else:
-			processed_dict = split_data_interp(data_dict)
+    print(f"Inside split_and_subsample_batch() function")
+    if data_type == "train":
+        print(f"if data_type is train")
+        # Training set
+        if args.extrap:
+            processed_dict = split_data_extrap(data_dict, dataset = args.dataset)
+        else:
+            processed_dict = split_data_interp(data_dict)
 
-	else:
-    	print(f"if data_type is test")
-		# Test set
-		if args.extrap:
-			processed_dict = split_data_extrap(data_dict, dataset = args.dataset)
-		else:
-			processed_dict = split_data_interp(data_dict)
+    else:
+        print(f"if data_type is test")
+    # Test set
+    if args.extrap:
+        processed_dict = split_data_extrap(data_dict, dataset = args.dataset)
+    else:
+        processed_dict = split_data_interp(data_dict)
 
-	# add mask
-  	print(f"adding mask")
-	processed_dict = add_mask(processed_dict)
+    # add mask
+    print(f"adding mask")
+    processed_dict = add_mask(processed_dict)
 
-	# Subsample points or cut out the whole section of the timeline
-	if (args.sample_tp is not None) or (args.cut_tp is not None):
-		processed_dict = subsample_observed_data(processed_dict, 
-			n_tp_to_sample = args.sample_tp, 
-			n_points_to_cut = args.cut_tp)
-  	print(f"keys of processed_dict are {processed_dict.keys()}")
-	# if (args.sample_tp is not None):
-	# 	processed_dict = subsample_observed_data(processed_dict, 
-	# 		n_tp_to_sample = args.sample_tp)
-	return processed_dict
+    # Subsample points or cut out the whole section of the timeline
+    if (args.sample_tp is not None) or (args.cut_tp is not None):
+        processed_dict = subsample_observed_data(processed_dict, 
+        n_tp_to_sample = args.sample_tp, 
+        n_points_to_cut = args.cut_tp)
+    print(f"keys of processed_dict are {processed_dict.keys()}")
+    # if (args.sample_tp is not None):
+    # 	processed_dict = subsample_observed_data(processed_dict, 
+    # 		n_tp_to_sample = args.sample_tp)
+    return processed_dict
 
 
 
