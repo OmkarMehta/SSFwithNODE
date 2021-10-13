@@ -103,6 +103,8 @@ def split_last_dim(data):
 
 
 def init_network_weights(net, std = 0.1):
+	print(f"Inside init_network_weights function")
+	print(f"std is {std}")
 	for m in net.modules():
 		if isinstance(m, nn.Linear):
 			nn.init.normal_(m.weight, mean=0, std=std)
@@ -299,12 +301,22 @@ def reverse(tensor):
 def create_net(n_inputs, n_outputs, n_layers = 1, 
 	n_units = 100, nonlinear = nn.Tanh):
 	layers = [nn.Linear(n_inputs, n_units)]
+	print(f"Inside create_net function")
+	print(f"n_input for layers is {n_inputs}")
+	print(f"n_units for layers is {n_units}")
+	print(f"n_layers is {n_layers}")
+	print(f"nonlinear is {nonlinear}")
+	print(f"for i in range(n_layers):")
+	print(f"    layers.append(nonlinear())")
+	print(f"    layers.append(nn.Linear(n_units, n_units))")
 	for i in range(n_layers):
 		layers.append(nonlinear())
 		layers.append(nn.Linear(n_units, n_units))
-
+	print(f"layers.append(nonlinear())")
+	print(f"layers.append(nn.Linear(n_units, n_outputs))")
 	layers.append(nonlinear())
 	layers.append(nn.Linear(n_units, n_outputs))
+	print(f"n_outputs is {n_outputs}")
 	return nn.Sequential(*layers)
 
 
