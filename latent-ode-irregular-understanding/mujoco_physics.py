@@ -11,24 +11,24 @@ import lib.utils as utils
 from torchvision.datasets.utils import download_url
 
 class HopperPhysics(object):
-  print(f"We are inside HopperPhysics class")
+  	print(f"We are inside HopperPhysics class")
 
 	T = 200
-  print(f"T is {T}")
+  	print(f"T is {T}")
 	D = 14
-  print("dim is {D}")
+  	print("dim is {D}")
 
 	n_training_samples = 10000
-  print(f"n_training_samples is {n_training_samples}")
+  	print(f"n_training_samples is {n_training_samples}")
 
 	training_file = 'training.pt'
-  print(f"training_file name is {training_file}")
+  	print(f"training_file name is {training_file}")
 
 	def __init__(self, root, download = True, generate=False, device = torch.device("cpu")):
-    print(f"root is {root}")
+    	print(f"root is {root}")
 		self.root = root
 		if download:
-      print(f"Let's download")
+      	print(f"Let's download")
 			self._download()
 
 		if generate:
@@ -38,10 +38,11 @@ class HopperPhysics(object):
 			raise RuntimeError('Dataset not found.' + ' You can use download=True to download it')
 
 		data_file = os.path.join(self.data_folder, self.training_file)
-    print(f"data_file is {data_file}")
-    print(f"Using torch.Tensor(torch.load(data_file)).to(device) to get self.data")
+    	print(f"data_file is {data_file}")
+    	print(f"Using torch.Tensor(torch.load(data_file)).to(device) to get self.data")
 		self.data = torch.Tensor(torch.load(data_file)).to(device) # https://pytorch.org/docs/stable/generated/torch.load.html
-    print(f"self.data.shape is {self.data.shape}")
+    	print(f"self.data.shape is {self.data.shape}")
+    	print("\n")
 		self.data, self.data_min, self.data_max = utils.normalize_data(self.data)
 
 		self.device =device
@@ -95,9 +96,10 @@ class HopperPhysics(object):
 
 		print("Downloading the dataset [325MB] ...")
 		os.makedirs(self.data_folder, exist_ok=True)
-    print(f"{self.data_folder} is generated")
+    	print(f"{self.data_folder} is generated")
 		url = "http://www.cs.toronto.edu/~rtqichen/datasets/HopperPhysics/training.pt"
-    print(f"Downloading data from this url: {url}")
+    	print(f"Downloading data from this url: {url}")
+    	print("\n")
 		download_url(url, self.data_folder, "training.pt", None)  # from torchvision.datasets.utils import download_url
 
 	def _generate_random_trajectories(self, n_samples):
@@ -131,7 +133,7 @@ class HopperPhysics(object):
 		return data
 
 	def _check_exists(self):
-    print(f"we will check os.path.exists(os.path.join(self.data_folder, self.training_file)). If it exists, return")
+    	print(f"we will check os.path.exists(os.path.join(self.data_folder, self.training_file)). If it exists, return")
 		return os.path.exists(os.path.join(self.data_folder, self.training_file))
 
 	@property

@@ -25,61 +25,70 @@ import random
 #####################################################################################################
 def parse_datasets(args, device):
 	
-  print(f"Using the function parse_datasets from parse_datasets.py")
-  print(f"Inputs are (args, device)")
+  	print(f"Using the function parse_datasets from parse_datasets.py")
+  	print(f"Inputs are (args, device)")
 	def basic_collate_fn(batch, time_steps, args = args, device = device, data_type = "train"):
-    print(f"Using basic_collate_fn function")
-    print(f"Inputs are (batch, time_steps, args = args, device = device, data_type = 'train')")
-    print(f"batch.shape is {batch.shape}")
-    # print(f"batch is {batch}")
-    print(f"timesteps are {timesteps}")
-    print(f"timesteps.shape is {timesteps.shape}")
-    print("\n")
+    	print(f"Using basic_collate_fn function")
+    	print(f"Inputs are (batch, time_steps, args = args, device = device, data_type = 'train')")
+    	print(f"batch.shape is {batch.shape}")
+    	# print(f"batch is {batch}")
+    	print(f"timesteps are {timesteps}")
+    	print(f"timesteps.shape is {timesteps.shape}")
+    	print("\n")
 
-    print(f"stacking using torch on batch")
+    	print(f"stacking using torch on batch")
 		batch = torch.stack(batch)
-    print(f"batch.shape is {batch.shape}")
-    # print(f"batch is {batch}")
-    print("\n")
+    	print(f"batch.shape is {batch.shape}")
+    	# print(f"batch is {batch}")
+    	print("\n")
 
-    print(f"Storing batch and timesteps in data_dict")
+    	print(f"Storing batch and timesteps in data_dict")
 		data_dict = {
 			"data": batch, 
 			"time_steps": time_steps}
-    print(f"Keys in data_dict are {data_dict.keys()}")
-    print("\n")
+    	print(f"Keys in data_dict are {data_dict.keys()}")
+    	print("\n")
 
-    print("Let's use utils.split_and_subsample_batch(data_dict, args, data_type = data_type) function")
+    	print("Let's use utils.split_and_subsample_batch(data_dict, args, data_type = data_type) function")
 		data_dict = utils.split_and_subsample_batch(data_dict, args, data_type = data_type)
 		return data_dict
 
 
 	dataset_name = args.dataset
-  print(f"dataset_name is {dataset_name}")
-  print("\n")
+  	print(f"dataset_name is {dataset_name}")
+  	print("\n")
 	n_total_tp = args.timepoints + args.extrap
-  print(f"args.timepoints is {args.timepoints}")
-  print(f"args.extrap is {args.extrap}")
-  print(f"n_total_tp = args.timepoints + args.extrap  --> is {n_total_tp}")
-  print("\n")
+  	print(f"args.timepoints is {args.timepoints}")
+  	print(f"args.extrap is {args.extrap}")
+  	print(f"n_total_tp = args.timepoints + args.extrap  --> is {n_total_tp}")
+  	print("\n")
 	max_t_extrap = args.max_t / args.timepoints * n_total_tp
-  print(f"args.max_t is {args.max_t}")
-  print(f"max_t_extrap = args.max_t / args.timepoints * n_total_tp --> {max_t_extrap}")
-  print("\n")
+  	print(f"args.max_t is {args.max_t}")
+  	print(f"max_t_extrap = args.max_t / args.timepoints * n_total_tp --> {max_t_extrap}")
+  	print("\n")
 	##################################################################
 	# MuJoCo dataset
 	if dataset_name == "hopper":
-    print(f"if dataset_name == 'hopper'")
+    	print(f"if dataset_name == 'hopper'")
 		dataset_obj = HopperPhysics(root='data', download=True, generate=False, device = device)
 		dataset = dataset_obj.get_dataset()[:args.n]
 		dataset = dataset.to(device)
+    	print(f"dataset.shape is {dataset.shape}")
+    	print("\n")
 
 
 		n_tp_data = dataset[:].shape[1]
+    	print(f"n_tp_data = dataset[:].shape[1]")
+    	print(f"n_tp_data is {n_tp_data}")
+    	print("\n")
 
 		# Time steps that are used later on for exrapolation
 		time_steps = torch.arange(start=0, end = n_tp_data, step=1).float().to(device)
+    	print(f"time_steps.shape is {time_steps.shape}")
 		time_steps = time_steps / len(time_steps)
+    	print(f"time_steps = time_steps / len(time_steps)")
+    	print(f"time_steps.shape is {time_steps.shape}")
+    	print("\n")
 
 		dataset = dataset.to(device)
 		time_steps = time_steps.to(device)
@@ -88,28 +97,60 @@ def parse_datasets(args, device):
 			# Creating dataset for interpolation
 			# sample time points from different parts of the timeline, 
 			# so that the model learns from different parts of hopper trajectory
+      		print(f"if not args.extrap")
+      		print(f"# Creating dataset for interpolation")
+      		print(f"# sample time points from different parts of the timeline, ")
+      		print(f"# so that the model learns from different parts of hopper trajectory")
 			n_traj = len(dataset)
+      		print(f"n_traj = len(dataset)")
+      		print(f"n_traj is {n_traj}")
 			n_tp_data = dataset.shape[1]
+      		print(f"n_tp_data = dataset.shape[1]")
+      		print(f"n_tp_data is {n_tp_data}")
 			n_reduced_tp = args.timepoints
+      		print(f"n_reduced_tp = args.timepoints")
+      		print(f"n_reduced_tp is {n_reduced_tp}")
+      		print("\n")
 
 			# sample time points from different parts of the timeline, 
 			# so that the model learns from different parts of hopper trajectory
 			start_ind = np.random.randint(0, high=n_tp_data - n_reduced_tp +1, size=n_traj)
+      		print(f"start_ind = np.random.randint(0, high=n_tp_data - n_reduced_tp +1, size=n_traj)")
+      		print(f"start_ind.shape is {start_ind.shape}")
 			end_ind = start_ind + n_reduced_tp
+      		print(f"end_ind = start_ind + n_reduced_tp")
+      		print(f"end_ind.shape is {end_ind.shape}")
 			sliced = []
+      		print(f"for i in range(n_traj):")
+      		print(f"   sliced.append(dataset[i, start_ind[i] : end_ind[i], :])")
 			for i in range(n_traj):
+
 				  sliced.append(dataset[i, start_ind[i] : end_ind[i], :])
 			dataset = torch.stack(sliced).to(device)
+      		print(f"dataset = torch.stack(sliced).to(device)")
+      		print(f"dataset.shape is {dataset.shape}")
 			time_steps = time_steps[:n_reduced_tp]
+      		print(f"time_steps = time_steps[:n_reduced_tp]")
+      		print(f"time_steps.shape is {time_steps.shape}")
+      		print("\n")
 
 		# Split into train and test by the time sequences
 		train_y, test_y = utils.split_train_test(dataset, train_fraq = 0.8)
-
+    	print(f"train_y.shape is {train_y.shape}")
+    	print(f"test_y.shape is {test_y.shape}")
 		n_samples = len(dataset)
+    	print(f"n_samples is {n_samples}")
 		input_dim = dataset.size(-1)
+    	print(f"input_dim is {input_dim}")
 
 		batch_size = min(args.batch_size, args.n)
-		train_dataloader = DataLoader(train_y, batch_size = batch_size, shuffle=False,
+    	print(f"batch_size = min(args.batch_size, args.n)")
+    	print(f"batch_size is {batch_size}")
+    	print("\n")
+
+    	print(f"Using DataLoader from from torch.utils.data import DataLoader: https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader")
+		print(f"collate_fn (callable, optional) – merges a list of samples to form a mini-batch of Tensor(s). Used when using batched loading from a map-style dataset.")
+    	train_dataloader = DataLoader(train_y, batch_size = batch_size, shuffle=False,
 			collate_fn= lambda batch: basic_collate_fn(batch, time_steps, data_type = "train"))
 		test_dataloader = DataLoader(test_y, batch_size = n_samples, shuffle=False,
 			collate_fn= lambda batch: basic_collate_fn(batch, time_steps, data_type = "test"))
@@ -120,6 +161,7 @@ def parse_datasets(args, device):
 					"input_dim": input_dim,
 					"n_train_batches": len(train_dataloader),
 					"n_test_batches": len(test_dataloader)}
+    	print(f"data_objects has following keys: {data_objects.keys()}")
 		return data_objects
 
 	##################################################################
