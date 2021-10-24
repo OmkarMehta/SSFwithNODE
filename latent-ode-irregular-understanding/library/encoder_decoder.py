@@ -87,104 +87,31 @@ class GRU_unit(nn.Module):
 
 		assert(not torch.isnan(new_y).any())
 
-		if masked_update:
-			# IMPORTANT: assumes that x contains both data and mask
-			# update only the hidden states for hidden state only if at least one feature is present for the current time point
-			n_data_dims = x.size(-1)//2
-			mask = x[:, :, n_data_dims:]
-			utils.check_mask(x[:, :, :n_data_dims], mask)
+		# if masked_update:
+    	# 		# IMPORTANT: assumes that x contains both data and mask
+		# 	# update only the hidden states for hidden state only if at least one feature is present for the current time point
+		# 	n_data_dims = x.size(-1)//2
+		# 	mask = x[:, :, n_data_dims:]
+		# 	utils.check_mask(x[:, :, :n_data_dims], mask)
 			
-			mask = (torch.sum(mask, -1, keepdim = True) > 0).float()
+		# 	mask = (torch.sum(mask, -1, keepdim = True) > 0).float()
 
-			assert(not torch.isnan(mask).any())
+		# 	assert(not torch.isnan(mask).any())
 
-			new_y = mask * new_y + (1-mask) * y_mean
-			new_y_std = mask * new_y_std + (1-mask) * y_std
+		# 	new_y = mask * new_y + (1-mask) * y_mean
+		# 	new_y_std = mask * new_y_std + (1-mask) * y_std
 
-			if torch.isnan(new_y).any():
-				print("new_y is nan!")
-				print(mask)
-				print(y_mean)
-				print(prev_new_y)
-				exit()
+		# 	if torch.isnan(new_y).any():
+		# 		print("new_y is nan!")
+		# 		print(mask)
+		# 		print(y_mean)
+		# 		print(prev_new_y)
+		# 		exit()
 
 		new_y_std = new_y_std.abs()
 		print(f"new_y.shape is {new_y.shape}")
 		print(f"new_y_std.shape is {new_y_std.shape}")
 		return new_y, new_y_std
-
-
-
-class Encoder_z0_RNN(nn.Module):
-	def __init__(self, latent_dim, input_dim, lstm_output_size = 20, 
-		use_delta_t = True, device = torch.device("cpu")):
-		
-		super(Encoder_z0_RNN, self).__init__()
-	
-		self.gru_rnn_output_size = lstm_output_size
-		self.latent_dim = latent_dim
-		self.input_dim = input_dim
-		self.device = device
-		self.use_delta_t = use_delta_t
-
-		self.hiddens_to_z0 = nn.Sequential(
-		   nn.Linear(self.gru_rnn_output_size, 50),
-		   nn.Tanh(),
-		   nn.Linear(50, latent_dim * 2),)
-
-		utils.init_network_weights(self.hiddens_to_z0)
-
-		input_dim = self.input_dim
-
-		if use_delta_t:
-			self.input_dim += 1
-		self.gru_rnn = GRU(self.input_dim, self.gru_rnn_output_size).to(device)
-
-	def forward(self, data, time_steps, run_backwards = True):
-		# IMPORTANT: assumes that 'data' already has mask concatenated to it 
-
-		# data shape: [n_traj, n_tp, n_dims]
-		# shape required for rnn: (seq_len, batch, input_size)
-		# t0: not used here
-		n_traj = data.size(0)
-
-		assert(not torch.isnan(data).any())
-		assert(not torch.isnan(time_steps).any())
-
-		data = data.permute(1,0,2) 
-
-		if run_backwards:
-			# Look at data in the reverse order: from later points to the first
-			data = utils.reverse(data)
-
-		if self.use_delta_t:
-			delta_t = time_steps[1:] - time_steps[:-1]
-			if run_backwards:
-				# we are going backwards in time with
-				delta_t = utils.reverse(delta_t)
-			# append zero delta t in the end
-			delta_t = torch.cat((delta_t, torch.zeros(1).to(self.device)))
-			delta_t = delta_t.unsqueeze(1).repeat((1,n_traj)).unsqueeze(-1)
-			data = torch.cat((delta_t, data),-1)
-
-		outputs, _ = self.gru_rnn(data)
-
-		# LSTM output shape: (seq_len, batch, num_directions * hidden_size)
-		last_output = outputs[-1]
-
-		self.extra_info ={"rnn_outputs": outputs, "time_points": time_steps}
-
-		mean, std = utils.split_last_dim(self.hiddens_to_z0(last_output))
-		std = std.abs()
-
-		assert(not torch.isnan(mean).any())
-		assert(not torch.isnan(std).any())
-
-		return mean.unsqueeze(0), std.unsqueeze(0)
-
-
-
-
 
 class Encoder_z0_ODE_RNN(nn.Module):
 	# Derive z0 by running ode backwards.

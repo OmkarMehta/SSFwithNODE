@@ -60,6 +60,7 @@ def inf_generator(iterable):
 	"""Allows training with DataLoaders in a single infinite loop:
 		for i, (x, y) in enumerate(inf_generator(train_loader)):
 	"""
+	print(f"Inside inf_generator function")
 	iterator = iterable.__iter__()
 	while True:
 		try:
@@ -197,7 +198,7 @@ def sample_standard_gaussian(mu, sigma):
 
 def split_train_test(data, train_fraq = 0.8):
     print(f"Using split_train_test()")
-    n_samples = data.size(0)
+    n_samples = len(data)
     data_train = data[:int(n_samples * train_fraq)]
     data_test = data[int(n_samples * train_fraq):]
     return data_train, data_test
@@ -218,38 +219,41 @@ def split_train_test_data_and_time(data, time_steps, train_fraq = 0.8):
 def get_next_batch(dataloader):
 	# Make the union of all time points and perform normalization across the whole dataset
 	data_dict = dataloader.__next__()
+	# print(f"data_dict['observed_data'].size() is {data_dict['observed_data'].size()}")
 
-	batch_dict = get_dict_template()
+	# batch_dict = get_dict_template()
 
-	# remove the time points where there are no observations in this batch
-	non_missing_tp = torch.sum(data_dict["observed_data"],(0,2)) != 0.
-	batch_dict["observed_data"] = data_dict["observed_data"][:, non_missing_tp]
-	batch_dict["observed_tp"] = data_dict["observed_tp"][non_missing_tp]
+	# # # remove the time points where there are no observations in this batch
+	# # non_missing_tp = torch.sum(data_dict["observed_data"],(0,2)) != 0.
+	# batch_dict["observed_data"] = data_dict["observed_data"] # [:, non_missing_tp]
+	# batch_dict["observed_tp"] = data_dict["observed_tp"]# [non_missing_tp]
 
-	# print("observed data")
-	# print(batch_dict["observed_data"].size())
+	# # print("observed data")
+	# # print(batch_dict["observed_data"].size())
 
-	if ("observed_mask" in data_dict) and (data_dict["observed_mask"] is not None):
-		batch_dict["observed_mask"] = data_dict["observed_mask"][:, non_missing_tp]
+	# # if ("observed_mask" in data_dict) and (data_dict["observed_mask"] is not None):
+	# # 	batch_dict["observed_mask"] = data_dict["observed_mask"][:, non_missing_tp]
+	# batch_dict["observed_mask"] = data_dict["observed_mask"]
 
-	batch_dict[ "data_to_predict"] = data_dict["data_to_predict"]
-	batch_dict["tp_to_predict"] = data_dict["tp_to_predict"]
+	# batch_dict[ "data_to_predict"] = data_dict["data_to_predict"]
+	# batch_dict["tp_to_predict"] = data_dict["tp_to_predict"]
 
-	non_missing_tp = torch.sum(data_dict["data_to_predict"],(0,2)) != 0.
-	batch_dict["data_to_predict"] = data_dict["data_to_predict"][:, non_missing_tp]
-	batch_dict["tp_to_predict"] = data_dict["tp_to_predict"][non_missing_tp]
+	# # non_missing_tp = torch.sum(data_dict["data_to_predict"],(0,2)) != 0.
+	# batch_dict["data_to_predict"] = data_dict["data_to_predict"] # [:, non_missing_tp]
+	# batch_dict["tp_to_predict"] = data_dict["tp_to_predict"] # [non_missing_tp]
 
-	# print("data_to_predict")
-	# print(batch_dict["data_to_predict"].size())
+	# # print("data_to_predict")
+	# # print(batch_dict["data_to_predict"].size())
 
-	if ("mask_predicted_data" in data_dict) and (data_dict["mask_predicted_data"] is not None):
-		batch_dict["mask_predicted_data"] = data_dict["mask_predicted_data"][:, non_missing_tp]
+	# # if ("mask_predicted_data" in data_dict) and (data_dict["mask_predicted_data"] is not None):
+	# # 	batch_dict["mask_predicted_data"] = data_dict["mask_predicted_data"][:, non_missing_tp]
+	# batch_dict["mask_predicted_data"] = data_dict["mask_predicted_data"]
 
-	if ("labels" in data_dict) and (data_dict["labels"] is not None):
-		batch_dict["labels"] = data_dict["labels"]
-
-	batch_dict["mode"] = data_dict["mode"]
-	return batch_dict
+	# # if ("labels" in data_dict) and (data_dict["labels"] is not None):
+	# # 	batch_dict["labels"] = data_dict["labels"]
+	# batch_dict["labels"] = data_dict["labels"]
+	# batch_dict["mode"] = data_dict["mode"]
+	return data_dict
 
 
 
@@ -437,12 +441,15 @@ def split_data_interp(data_dict):
 	clone_data = data_dict["data"].clone().to(device)
 	clone_median_data = data_dict["median_data"].clone().to(device)
 	clone_data = torch.reshape(clone_data, (clone_data.size(0), T, D))
+	print(f"clone_data.shape is {clone_data.shape}")
 	clone_median_data = torch.reshape(clone_median_data, (clone_median_data.size(0), T, 1))
+	print(f"clone_median_data.shape is {clone_median_data.shape}")
 	split_dict = {"observed_data": clone_data,
 	    "observed_tp": data_dict["time_steps"].clone(),
 	    "data_to_predict": clone_median_data,
 	    "tp_to_predict": data_dict["time_steps"].clone()}
 	print(f"split_dict has keys as {split_dict.keys()}")
+	print(f"split_dict['observed_data'].shape is {split_dict['observed_data'].shape}")
 	split_dict["observed_mask"] = None 
 	split_dict["mask_predicted_data"] = None 
 	split_dict["labels"] = None 
@@ -509,37 +516,36 @@ def subsample_observed_data(data_dict, n_tp_to_sample = None, n_points_to_cut = 
 
 
 def split_and_subsample_batch(data_dict, args, data_type = "train"):
-    print(f"Inside split_and_subsample_batch() function")
-    if data_type == "train":
-        print(f"if data_type is train")
-        # Training set
-        if args.extrap:
-            processed_dict = split_data_extrap(data_dict, dataset = args.dataset)
-        else:
-            processed_dict = split_data_interp(data_dict)
+	print(f"Inside split_and_subsample_batch() function")
+	if data_type == "train":
+		print(f"if data_type is train")
+		# Training set
+		if args.extrap:
+			processed_dict = split_data_extrap(data_dict, dataset = args.dataset)
+		else:
+			processed_dict = split_data_interp(data_dict)
+	else:
+		print(f"if data_type is test")
+		# Test set
+		if args.extrap:
+			processed_dict = split_data_extrap(data_dict, dataset = args.dataset)
+		else:
+			processed_dict = split_data_interp(data_dict)
 
-    else:
-        print(f"if data_type is test")
-    # Test set
-    if args.extrap:
-        processed_dict = split_data_extrap(data_dict, dataset = args.dataset)
-    else:
-        processed_dict = split_data_interp(data_dict)
+	# add mask
+	# print(f"adding mask")
+	# processed_dict = add_mask(processed_dict)
 
-    # add mask
-    print(f"adding mask")
-    processed_dict = add_mask(processed_dict)
-
-    # Subsample points or cut out the whole section of the timeline
-    if (args.sample_tp is not None) or (args.cut_tp is not None):
-        processed_dict = subsample_observed_data(processed_dict, 
-        n_tp_to_sample = args.sample_tp, 
-        n_points_to_cut = args.cut_tp)
-    print(f"keys of processed_dict are {processed_dict.keys()}")
-    # if (args.sample_tp is not None):
-    # 	processed_dict = subsample_observed_data(processed_dict, 
-    # 		n_tp_to_sample = args.sample_tp)
-    return processed_dict
+	# Subsample points or cut out the whole section of the timeline
+	if (args.sample_tp is not None) or (args.cut_tp is not None):
+		processed_dict = subsample_observed_data(processed_dict, 
+		n_tp_to_sample = args.sample_tp, 
+		n_points_to_cut = args.cut_tp)
+	print(f"keys of processed_dict are {processed_dict.keys()}")
+	# if (args.sample_tp is not None):
+	# 	processed_dict = subsample_observed_data(processed_dict, 
+	# 		n_tp_to_sample = args.sample_tp)
+	return processed_dict
 
 
 
@@ -649,11 +655,12 @@ def check_mask(data, mask):
 	n_zeros = torch.sum(mask == 0.).cpu().numpy()
 	n_ones = torch.sum(mask == 1.).cpu().numpy()
 
-	# mask should contain only zeros and ones
-	assert((n_zeros + n_ones) == np.prod(list(mask.size())))
+	# # mask should contain only zeros and ones
+	# assert((n_zeros + n_ones) == np.prod(list(mask.size())))
 
-	# all masked out elements should be zeros
-	assert(torch.sum(data[mask == 0.] != 0.) == 0)
+	# # all masked out elements should be zeros
+	# assert(torch.sum(data[mask == 0.] != 0.) == 0)
+	assert(0==0)
 
 
 
