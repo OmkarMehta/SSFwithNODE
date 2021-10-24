@@ -558,6 +558,8 @@ def compute_loss_all_batches(model,
 	max_samples_for_eval = None):
 
 	total = {}
+	total["pred_y"] = None
+	total['true_y'] = None
 	total["loss"] = 0
 	total["likelihood"] = 0
 	total["mse"] = 0
