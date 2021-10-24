@@ -434,8 +434,8 @@ def split_data_interp(data_dict):
 	print(f"Using split_data_interp function")
 	device = get_device(data_dict["data"])
 	print(f"Getting observed timepoints and timepoints to predict")
-	clone_data = data_dict["data"].clone()
-	clone_median_data = data_dict["median_data"].clone()
+	clone_data = data_dict["data"].clone().to(device)
+	clone_median_data = data_dict["median_data"].clone().to(device)
 	clone_data = torch.reshape(clone_data, (clone_data.size(0), T, D))
 	clone_median_data = torch.reshape(clone_median_data, (clone_median_data.size(0), T, 1))
 	split_dict = {"observed_data": clone_data,
