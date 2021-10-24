@@ -93,6 +93,8 @@ def make_dataset(dataset_type = "spiral",**kwargs):
 def split_last_dim(data):
 	last_dim = data.size()[-1]
 	last_dim = last_dim//2
+	print(f"inside utils' split_last_dim function")
+	print(f"last_dim = data.size()[-1] is {last_dim}")
 
 	if len(data.size()) == 3:
 		res = data[:,:,:last_dim], data[:,:,last_dim:]
@@ -429,28 +431,29 @@ def split_data_extrap(data_dict, dataset = ""):
 
 
 def split_data_interp(data_dict):
-    print(f"Using split_data_interp function")
-    device = get_device(data_dict["data"])
-    print(f"Getting observed timepoints and timepoints to predict")
-    split_dict = {"observed_data": data_dict["data"].clone(),
-        "observed_tp": data_dict["time_steps"].clone(),
-        "data_to_predict": data_dict["data"].clone(),
-        "tp_to_predict": data_dict["time_steps"].clone()}
-    print(f"split_dict has keys as {split_dict.keys()}")
-    split_dict["observed_mask"] = None 
-    split_dict["mask_predicted_data"] = None 
-    split_dict["labels"] = None 
-
-    if "mask" in data_dict and data_dict["mask"] is not None:
-        split_dict["observed_mask"] = data_dict["mask"].clone()
-        split_dict["mask_predicted_data"] = data_dict["mask"].clone()
-
-    if ("labels" in data_dict) and (data_dict["labels"] is not None):
-        split_dict["labels"] = data_dict["labels"].clone()
-
-    split_dict["mode"] = "interp"
-    print(f"split_dict['mode'] is {split_dict['mode']}")
-    return split_dict
+	print(f"Using split_data_interp function")
+	device = get_device(data_dict["data"])
+	print(f"Getting observed timepoints and timepoints to predict")
+	clone_data = data_dict["data"].clone()
+	clone_median_data = data_dict["median_data"].clone()
+	clone_data = torch.reshape(clone_data, (clone_data.size(0), T, D))
+	clone_median_data = torch.reshape(clone_median_data, (clone_median_data.size(0), T, 1))
+	split_dict = {"observed_data": clone_data,
+	    "observed_tp": data_dict["time_steps"].clone(),
+	    "data_to_predict": clone_median_data,
+	    "tp_to_predict": data_dict["time_steps"].clone()}
+	print(f"split_dict has keys as {split_dict.keys()}")
+	split_dict["observed_mask"] = None 
+	split_dict["mask_predicted_data"] = None 
+	split_dict["labels"] = None 
+	if "mask" in data_dict and data_dict["mask"] is not None:
+	    split_dict["observed_mask"] = data_dict["mask"].clone()
+	    split_dict["mask_predicted_data"] = data_dict["mask"].clone()	
+	if ("labels" in data_dict) and (data_dict["labels"] is not None):
+	    split_dict["labels"] = data_dict["labels"].clone()	
+	split_dict["mode"] = "interp"
+	print(f"split_dict['mode'] is {split_dict['mode']}")
+	return split_dict
 
 
 

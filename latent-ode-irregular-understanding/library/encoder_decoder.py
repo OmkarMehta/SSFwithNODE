@@ -72,8 +72,8 @@ class GRU_unit(nn.Module):
 			self.new_state_net  = new_state_net
 
 
-	def forward(self, y_mean, y_std, x, masked_update = True):
-		y_concat = torch.cat([y_mean, y_std, x], -1)
+	def forward(self, y_mean, y_std, x, masked_update = False):
+		y_concat = torch.cat([y_mean, y_std, x], -1)  
 
 		update_gate = self.update_gate(y_concat)
 		reset_gate = self.reset_gate(y_concat)
@@ -109,6 +109,8 @@ class GRU_unit(nn.Module):
 				exit()
 
 		new_y_std = new_y_std.abs()
+		print(f"new_y.shape is {new_y.shape}")
+		print(f"new_y_std.shape is {new_y_std.shape}")
 		return new_y, new_y_std
 
 
