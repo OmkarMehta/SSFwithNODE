@@ -153,7 +153,7 @@ def compute_loss_all_batches(model,
 				if key == "pred_y":
 					total[key].append(results[key].cpu().detach().numpy())
 				elif key == "true_y":
-					total[key].append(batch_dict["data"].cpu().detach().numpy())
+					total[key].append(results[key].cpu().detach().numpy())
 				else:
 					var = results[key]
 					if isinstance(var, torch.Tensor):
