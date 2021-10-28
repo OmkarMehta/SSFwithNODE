@@ -169,7 +169,12 @@ def compute_loss_all_batches(model,
 
 	if n_test_batches > 0:
 		for key, value in total.items():
-			total[key] = total[key] / n_test_batches
+			if key == "pred_y":
+				continue
+			elif key == "true_y":
+				continue
+			else:
+				total[key] = total[key] / n_test_batches
 
 	if args.classif:
 		if args.dataset == "physionet":
