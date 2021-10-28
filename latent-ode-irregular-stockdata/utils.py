@@ -116,8 +116,8 @@ def compute_loss_all_batches(model,
 	max_samples_for_eval = None):
 
 	total = {}
-	total["pred_y"] = None # pred_y
-	total['true_y'] = None # true_y
+	total["pred_y"] = [] # pred_y
+	total['true_y'] = [] # true_y
 	total["loss"] = 0 
 	total["likelihood"] = 0
 	total["mse"] = 0
@@ -127,7 +127,7 @@ def compute_loss_all_batches(model,
 	total["ce_loss"] = 0
 
 	n_test_batches = 0
-	
+
 	classif_predictions = torch.Tensor([]).to(device)
 	all_test_labels =  torch.Tensor([]).to(device)
 
@@ -150,10 +150,15 @@ def compute_loss_all_batches(model,
 
 		for key in total.keys(): 
 			if key in results:
-				var = results[key]
-				if isinstance(var, torch.Tensor):
-					var = var.detach()
-				total[key] += var
+				if key == "pred_y":
+					total[key].append(results[key].cpu().detach().numpy())
+				elif key == "true_y":
+					total[key].append(batch_dict["data"].cpu().detach().numpy())
+				else:
+					var = results[key]
+					if isinstance(var, torch.Tensor):
+						var = var.detach()
+					total[key] += var
 
 		n_test_batches += 1
 
@@ -165,7 +170,7 @@ def compute_loss_all_batches(model,
 	if n_test_batches > 0:
 		for key, value in total.items():
 			total[key] = total[key] / n_test_batches
- 
+
 	if args.classif:
 		if args.dataset == "physionet":
 			#all_test_labels = all_test_labels.reshape(-1)
@@ -251,7 +256,7 @@ def normalize_data(data):
     return data_norm, att_min, att_max
 
 def split_train_test(data, train_fraq = 0.8):
-    print(f"Using split_train_test()")
+    # print(f"Using split_train_test()")
     n_samples = len(data)
     data_train = data[:int(n_samples * train_fraq)]
     data_test = data[int(n_samples * train_fraq):]
@@ -273,8 +278,8 @@ def inf_generator(iterable):
 def split_last_dim(data):
     last_dim = data.size()[-1]
     last_dim = last_dim//2
-    print(f"inside utils' split_last_dim function")
-    print(f"last_dim = data.size()[-1] is {last_dim}")
+    # print(f"inside utils' split_last_dim function")
+    # print(f"last_dim = data.size()[-1] is {last_dim}")
 
     if len(data.size()) == 3:
         res = data[:,:,:last_dim], data[:,:,last_dim:]
@@ -284,8 +289,8 @@ def split_last_dim(data):
     return res
 
 def init_network_weights(net, std = 0.1):
-    print(f"Inside init_network_weights function")
-    print(f"std is {std}")
+    # print(f"Inside init_network_weights function")
+    # print(f"std is {std}")
     for m in net.modules():
         if isinstance(m, nn.Linear):
             nn.init.normal_(m.weight, mean=0, std=std)
@@ -343,6 +348,22 @@ def update_learning_rate(optimizer, decay_rate = 0.999, lowest = 1e-3):
         lr = max(lr * decay_rate, lowest)
         param_group['lr'] = lr
 
+def linspace_vector(start, end, n_points):
+    # start is either one value or a vector
+	size = np.prod(start.size())
+
+	assert(start.size() == end.size())
+	if size == 1:
+		# start and end are 1d-tensors
+		res = torch.linspace(start, end, n_points)
+	else:
+		# start and end are vectors
+		res = torch.Tensor()
+		for i in range(0, start.size(0)):
+			res = torch.cat((res, 
+				torch.linspace(start[i], end[i], n_points)),0)
+		res = torch.t(res.reshape(start.size(0), n_points))
+	return res
 def get_item_from_pickle(pickle_file, item_name):
     from_pickle = load_pickle(pickle_file)
     if item_name in from_pickle:
@@ -374,8 +395,8 @@ def makedirs(dirname):
         os.makedirs(dirname)
 
 def save_checkpoint(state, save, epoch):
-    if not os.path.exists(save):
-        os.makedirs(save)
+	if not os.path.exists(save):
+		os.makedirs(save)
 	filename = os.path.join(save, 'checkpt-%04d.pth' % epoch)
 	torch.save(state, filename)
 
