@@ -1,0 +1,2 @@
+model_checkpoint_path: "stock-cluster-model"
+all_model_checkpoint_paths: "stock-cluster-model"
